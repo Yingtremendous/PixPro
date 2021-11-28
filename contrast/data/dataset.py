@@ -7,6 +7,7 @@ import torch.distributed as dist
 import torch.utils.data as data
 from PIL import Image
 from pycocotools.coco import COCO
+# COCO API CLASS THAT LAODS coco ANNOTATION FILE AND PREPARE DATA STRUCTURES
 
 from .zipreader import is_zip_path, ZipReader
 
@@ -32,17 +33,23 @@ def find_classes(dir):
 def make_dataset(dir, class_to_idx, extensions):
     images = []
     dir = os.path.expanduser(dir)
+    # return the argument with an initial component of ~ or ~user replaced by that user's home directory
     for target in sorted(os.listdir(dir)):
+        #This method os.lsitdir returns a list containing the names of the entries in the directory given by path
         d = os.path.join(dir, target)
         if not os.path.isdir(d):
+            # 如果该target不是一个目录 dir,则继续
             continue
 
         for root, _, fnames in sorted(os.walk(d)):
+            # os.walk() generates the file names in a directory tree by walking the tree either top-down or bottom-up
+            # os.walk() return a tuple {curent_path, directories in current_path(文件夹). files in current _path（带后缀或不带后缀但是里面没有其他文件）)
             for fname in sorted(fnames):
                 if has_file_allowed_extension(fname, extensions):
                     path = os.path.join(root, fname)
                     item = (path, class_to_idx[target])
                     images.append(item)
+                    # images is a [item,item,(path,class_to_idx[target]]
 
     return images
 
@@ -53,9 +60,11 @@ def make_dataset_with_ann(ann_file, img_prefix, extensions, dataset='ImageNet'):
     # make COCO dataset
     if dataset == 'COCO':
         coco = COCO(ann_file)
-        img_ids = coco.getImgIds()
+        img_ids = coco.getImgIds() 
+        # getImgIds: get img ids that satisfy given filter condition
         for idx in img_ids:
             im_file_name = coco.loadImgs([idx])[0]['file_name']
+            # loadImgs load images with specific ids
             class_index = 0
 
             assert str.lower(os.path.splitext(im_file_name)[-1]) in extensions
