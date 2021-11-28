@@ -48,6 +48,8 @@ def regression_loss(q, k, coord_q, coord_k, pos_ratio=0.5):
     N, C, H, W = q.shape
     # [bs, feat_dim, 49]
     q = q.view(N, C, -1)
+    # view fucntion is meant to reshape the tensor
+    # pararm: -1, rows not sure, but column sure
     k = k.view(N, C, -1)
 
     # generate center_coord, width, height
