@@ -59,6 +59,7 @@ class Compose(object):
         return img, coord
 
     def __repr__(self):
+        # a special method used to represent a class's objects as a string
         format_string = self.__class__.__name__ + '('
         for t in self.transforms:
             format_string += '\n'
