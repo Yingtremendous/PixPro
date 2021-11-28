@@ -55,25 +55,31 @@ def regression_loss(q, k, coord_q, coord_k, pos_ratio=0.5):
     # generate center_coord, width, height
     # [1, 7, 7]
     x_array = torch.arange(0., float(W), dtype=coord_q.dtype, device=coord_q.device).view(1, 1, -1).repeat(1, H, 1)
+    # give a x_array with dimension (1,H,W)
     y_array = torch.arange(0., float(H), dtype=coord_q.dtype, device=coord_q.device).view(1, -1, 1).repeat(1, 1, W)
+    # give a y_array with dimension (1,H,W)
     # [bs, 1, 1]
+    # q k 的单位宽库
     q_bin_width = ((coord_q[:, 2] - coord_q[:, 0]) / W).view(-1, 1, 1)
     q_bin_height = ((coord_q[:, 3] - coord_q[:, 1]) / H).view(-1, 1, 1)
     k_bin_width = ((coord_k[:, 2] - coord_k[:, 0]) / W).view(-1, 1, 1)
     k_bin_height = ((coord_k[:, 3] - coord_k[:, 1]) / H).view(-1, 1, 1)
     # [bs, 1, 1]
+    # q k 的开始点
     q_start_x = coord_q[:, 0].view(-1, 1, 1)
     q_start_y = coord_q[:, 1].view(-1, 1, 1)
     k_start_x = coord_k[:, 0].view(-1, 1, 1)
     k_start_y = coord_k[:, 1].view(-1, 1, 1)
 
     # [bs, 1, 1]
+    # q k 对角长度
     q_bin_diag = torch.sqrt(q_bin_width ** 2 + q_bin_height ** 2)
     k_bin_diag = torch.sqrt(k_bin_width ** 2 + k_bin_height ** 2)
     max_bin_diag = torch.max(q_bin_diag, k_bin_diag)
 
     # [bs, 7, 7]
-    center_q_x = (x_array + 0.5) * q_bin_width + q_start_x
+    # calculate the center point
+    center_q_x = (x_array + 0.5) * q_bin_width + q_start_x  # why 0.5
     center_q_y = (y_array + 0.5) * q_bin_height + q_start_y
     center_k_x = (x_array + 0.5) * k_bin_width + k_start_x
     center_k_y = (y_array + 0.5) * k_bin_height + k_start_y
@@ -85,10 +91,11 @@ def regression_loss(q, k, coord_q, coord_k, pos_ratio=0.5):
 
     # [bs, 49, 49]
     logit = torch.bmm(q.transpose(1, 2), k)
+    # bmm: performs a batch matrix-matrix product of matrics stored in input and mat2
 
     loss = (logit * pos_mask).sum(-1).sum(-1) / (pos_mask.sum(-1).sum(-1) + 1e-6)
 
-    return -2 * loss.mean()
+    return -2 * loss.mean() # why 2
 
 
 def Proj_Head(in_dim=2048, inner_dim=4096, out_dim=256):
