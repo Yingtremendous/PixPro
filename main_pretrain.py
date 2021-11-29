@@ -2,6 +2,8 @@ import json
 import os
 import time
 from shutil import copyfile
+# shutil: high level file copying functions
+# copyfile: copy contents (no metadata) of the file to another file
 
 import torch
 import torch.distributed as dist
@@ -9,19 +11,21 @@ from torch.backends import cudnn
 from torch.nn.parallel import DistributedDataParallel
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.tensorboard import SummaryWriter
+# Tensorboard UI. SummaryWritter: main entry to log data for 
+# consumption and visualization by tensorbaord
 
-from contrast import models
-from contrast import resnet
+from contrast import models # pixpro
+from contrast import resnet # different resnets
 from contrast.data import get_loader
-from contrast.logger import setup_logger
-from contrast.lr_scheduler import get_scheduler
-from contrast.option import parse_option
-from contrast.util import AverageMeter
+from contrast.logger import setup_logger # for logger
+from contrast.lr_scheduler import get_scheduler # from key word to select optimizer
+from contrast.option import parse_option # arguments
+from contrast.util import AverageMeter # Computes and stores the average and current value
 from contrast.lars import add_weight_decay, LARS
 
 try:
     # noinspection PyUnresolvedReferences
-    from apex import amp
+    from apex import amp # amp: automatic mixed precision, to enable tensor core-acclerated traning in only 3 lines
 except ImportError:
     amp = None
 
